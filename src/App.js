@@ -2,6 +2,7 @@ import React from 'react'
 import * as BooksAPI from './BooksAPI'
 import './App.css'
 import {BrowserRouter, Route, Link} from 'react-router-dom';
+import Bookfinder from './Bookfinder'
 
 var shelvesGlobal = [
     {value: "currentlyReading", display: "Currently Reading"},
@@ -142,6 +143,7 @@ class BooksApp extends React.Component {
     return (
       <div className="app">
         <Route exact path='/' render={()=>(<Bookcase shelves={shelvesGlobal} library={this.state.library} reshelfFunc={this.reshelf} />)} />
+        <Route path='/search' render={()=>(<Bookfinder />)} />
       </div>
     );
   }
