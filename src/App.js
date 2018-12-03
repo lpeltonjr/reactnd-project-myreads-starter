@@ -21,7 +21,7 @@ function BookIcon(props) {
         <div className='book-top'>
           <div className='book-cover' style={{ width: 128, height: 192, backgroundImage: `url(${props.book.imageLinks.thumbnail})`}} ></div>         
           <div className='book-shelf-changer'>
-            <select value={props.book.shelf} onChange={(e)=>{props.reshelfFunc(props.book, e.target.value)}} >
+            <select value={props.book.shelf} onChange={(e)=>{e.preventDefault(); props.reshelfFunc(props.book, e.target.value)}} >
               <option value='move' disabled>Move to...</option>
               {props.shelves.map((item, idx)=>(<option key={idx} value={item.value}>{item.display}</option>))}
             </select>

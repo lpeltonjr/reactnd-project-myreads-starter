@@ -12,7 +12,12 @@ class Bookfinder extends React.Component {
 
     this.state = {query: ''};
 
-    
+    this.handleInputChange = this.handleInputChange.bind(this);
+  }
+
+  handleInputChange(event) {
+    event.preventDefault();
+    this.setState({query: event.target.value});
   }
 
   
@@ -21,7 +26,7 @@ class Bookfinder extends React.Component {
       <div className="search-books-bar">
         <Link to='/' className='close-search'>Close</Link>
         <div className='search-books-input-wrapper'>
-        <input value={this.state.query}></input>
+        <input value={this.state.query} onChange={this.handleInputChange}></input>
         </div>
       </div>
     );
