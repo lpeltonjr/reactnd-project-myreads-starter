@@ -39,7 +39,18 @@ class Bookfinder extends React.Component {
             BooksAPI.search(this.state.query).then(
               res=>{
                 console.log(res);
-                if (res.length) {
+                if (res && res.length) {
+                  //  don't allow displaying books without thumbnails
+                  res = res.filter(item=>item.imageLinks);
+                  //  there's no shelf information for any books returned from the search query, so assign it
+                  //  such that books in the BooksApp library show their correct shelves, and all other books
+                  //  are assigned to shelf 'none'
+                  res = res.map(
+                    item=>{
+                      item.shelf = BooksApp.bookIsOnShelf(item.id);
+                      return (item);
+                    }
+                  );
                   this.setState({library: res});
                 } else {
                   this.setState({library: []});

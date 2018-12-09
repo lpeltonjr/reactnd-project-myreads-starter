@@ -110,12 +110,15 @@ class BooksApp extends React.Component {
     this.state = {library: []};
 
     this.reshelf = this.moveBook.bind(this);
-    
+
     //  make a static method bound to this class instance so we can update
     //  the BooksApp library from the search page and have an added book
     //  show up immediately when we return from the search page;
     //  this may not be kosher, but it appears to work
     this.constructor.reload = this.reloadLib.bind(this);
+    //  make bookIsOnShelf() available as a static method that is bound
+    //  to this class instance
+    this.constructor.bookIsOnShelf = this.bookIsOnShelf.bind(this);
   }
 
   componentDidMount() {
@@ -126,6 +129,18 @@ class BooksApp extends React.Component {
   //  load the library again from the server
   reloadLib() {
     BooksAPI.getAll().then((res)=>{this.setState({library: res});}).catch(e=>console.log(e));
+  }
+
+  //  given a book ID, returns a shelf name, if the book exists in our library;
+  //  if not, this returns 'none'
+  bookIsOnShelf(bookID) {
+    let tempBook = this.state.library.filter(item=>item.id === bookID);
+
+    if (tempBook && tempBook.length) {
+      console.log(tempBook[0]);
+      return (tempBook[0].shelf);
+    }
+    return 'none';
   }
 
   //  to move a book from one shelf to another, update the shelf at the server, then reload the
