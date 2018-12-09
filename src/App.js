@@ -27,6 +27,8 @@ function BookIcon(props) {
             </select>
           </div>
         </div>
+        <div className='book-title'>{props.book.title}</div>
+        <div className='book-authors'>{props.book.authors}</div>
       </div>
     </li>
   );
@@ -40,8 +42,10 @@ function Bookshelf(props) {
   //  as props.shelf; the JSON book object's "shelf" element is the same as the value element in
   //  our shelf
   let shelfStack = props.library;
+  let shelfTitle = null;
   if (!(props.displayAll)) {
     shelfStack = props.library.filter(item=>item.shelf === props.shelf.value);
+    shelfTitle = (<h2 className='bookshelf-title'>{props.shelf.display}</h2>);
   }
 
   console.log("Bookshelf: " + props.shelf.value);
@@ -51,7 +55,7 @@ function Bookshelf(props) {
   if (shelfStack.length) {
     return(
       <div className='bookshelf'>
-        <h2 className='bookshelf-title'>{props.shelf.display}</h2>
+        {shelfTitle}
         <div className='bookshelf-books'>
           <ol className='books-grid'>
           {shelfStack.map(
@@ -105,37 +109,31 @@ class BooksApp extends React.Component {
 
     this.state = {library: []};
 
-    this.reshelf = this.reshelf.bind(this);
+    this.reshelf = this.moveBook.bind(this);
+    
+    //  make a static method bound to this class instance so we can update
+    //  the BooksApp library from the search page and have an added book
+    //  show up immediately when we return from the search page;
+    //  this may not be kosher, but it appears to work
+    this.constructor.reload = this.reloadLib.bind(this);
   }
 
   componentDidMount() {
     console.log("BooksApp mounted!");
-    
-    BooksAPI.getAll().then((res)=>{
-        console.log(res);
-        this.setState({library: res});
-      }).then(()=>console.log(this.state.library)).catch(e=>console.log(e));
+    this.reloadLib();
   }
 
-  reshelf(book, shelf) {
+  //  load the library again from the server
+  reloadLib() {
+    BooksAPI.getAll().then((res)=>{this.setState({library: res});}).catch(e=>console.log(e));
+  }
+
+  //  to move a book from one shelf to another, update the shelf at the server, then reload the
+  //  entire library from the server; this is pretty slow, but the local state will always reflect
+  //  the remote state
+  moveBook(book, shelf) {
     if (shelf !== 'none') {
-      BooksAPI.update(book, shelf).then(
-        ()=>
-            this.setState(
-                prevState=>{
-                  let tempLib = prevState.library;
-                  tempLib.forEach(
-                    (item, idx)=>{
-                      if (item.id === book.id) {
-                        tempLib[idx].shelf = shelf;
-                      }
-                    }
-                  );
-                  return ({library: tempLib});
-                }
-            ),
-        e=>console.log(e)
-      );
+      BooksAPI.update(book, shelf).then(()=>BooksAPI.getAll()).then((res)=>{this.setState({library: res});}).catch(e=>console.log(e));
     }
   }
 
@@ -150,4 +148,5 @@ class BooksApp extends React.Component {
 }
 
 
-export default BooksApp
+export default BooksApp;
+export {BooksApp, Bookshelf, shelvesGlobal};
