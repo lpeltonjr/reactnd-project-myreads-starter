@@ -2,7 +2,7 @@
 
 This is the final assessment project for Udacity's React Fundamentals course.
 
-## TL;DR
+## Installation
 
 To install the application:
 
@@ -10,7 +10,7 @@ To install the application:
 * start the development server with `npm start`
 * once the development server is running, the application is at http://localhost:3000
 
-## Soure
+## Source
 ```bash
 ├── CONTRIBUTING.md
 ├── README.md - This file.
