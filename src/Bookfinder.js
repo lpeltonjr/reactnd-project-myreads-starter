@@ -1,8 +1,8 @@
 import React from 'react'
 import * as BooksAPI from './BooksAPI'
 import './App.css'
-import {BrowserRouter, Route, Link} from 'react-router-dom';
-import {BooksApp, Bookshelf, shelvesGlobal} from './App';
+import {Link} from 'react-router-dom';
+import {Bookshelf, shelvesGlobal} from './App';
 
 
 
@@ -31,14 +31,13 @@ class Bookfinder extends React.Component {
     }
     //  update the text box
     this.setState({query: event.target.value});
-    //  use a timer to prevent immediate server queries; only query 1 second after any input change
+    //  use a timer to prevent immediate server queries; only query 1/2 second after any input change
     this.timer = window.setTimeout(
       ()=>{
             //  search at the server and display the results here by updating the entire library
             //  of this component with the search results
             BooksAPI.search(this.state.query).then(
               res=>{
-                console.log(res);
                 if (res && res.length) {
                   //  don't allow displaying books without thumbnails
                   res = res.filter(item=>item.imageLinks);
@@ -47,7 +46,7 @@ class Bookfinder extends React.Component {
                   //  are assigned to shelf 'none'
                   res = res.map(
                     item=>{
-                      item.shelf = BooksApp.bookIsOnShelf(item.id);
+                      item.shelf = this.props.bookToShelfFunc(item.id);
                       return (item);
                     }
                   );
@@ -58,7 +57,7 @@ class Bookfinder extends React.Component {
               }
             ).catch(e=>console.log(e));
           },
-      1000
+      500
     );
   }
 
@@ -78,7 +77,9 @@ class Bookfinder extends React.Component {
     if (shelf !== 'none') {
       BooksAPI.update(book, shelf).then(
         ()=>{
-            BooksApp.reload();
+            //  update the BooksApp library
+            this.props.reloadFunc();
+            //  update the selector for the book shown on the search page
             this.setState(
                 prevState=>{
                   let tempLib = prevState.library;

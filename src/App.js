@@ -1,10 +1,10 @@
 import React from 'react'
 import * as BooksAPI from './BooksAPI'
 import './App.css'
-import {BrowserRouter, Route, Link} from 'react-router-dom';
+import {Route, Link} from 'react-router-dom';
 import Bookfinder from './Bookfinder'
 
-var shelvesGlobal = [
+const shelvesGlobal = [
     {value: "currentlyReading", display: "Currently Reading"},
     {value: "wantToRead", display: "Want to Read"},
     {value: "read", display: "Read"},
@@ -13,8 +13,6 @@ var shelvesGlobal = [
 
 //  props: book, shelves, reshelfFunc
 function BookIcon(props) {
-  console.log("in Book");
-  console.log(props);
   return (
     <li>
       <div className='book'>
@@ -48,9 +46,6 @@ function Bookshelf(props) {
     shelfTitle = (<h2 className='bookshelf-title'>{props.shelf.display}</h2>);
   }
 
-  console.log("Bookshelf: " + props.shelf.value);
-  console.log(shelfStack);
-
   //  don't display the bookshelf if it's empty
   if (shelfStack.length) {
     return(
@@ -58,14 +53,7 @@ function Bookshelf(props) {
         {shelfTitle}
         <div className='bookshelf-books'>
           <ol className='books-grid'>
-          {shelfStack.map(
-            (item)=>{
-              console.log(item);
-              return (
-                <BookIcon key={item.id} book={item} shelves={props.shelves} reshelfFunc={props.reshelfFunc} />
-              );
-            }
-          )}
+          {shelfStack.map((item)=>(<BookIcon key={item.id} book={item} shelves={props.shelves} reshelfFunc={props.reshelfFunc} />))}
           </ol>
         </div>
       </div>
@@ -86,8 +74,7 @@ function Bookcase(props) {
       <div className='list-books-content'>
         {props.shelves.map(
           item=>{
-            if (item.value !== 'none')
-            {
+            if (item.value !== 'none')  {
               return (<Bookshelf key={item.value} shelf={item} shelves={props.shelves} library={props.library} reshelfFunc={props.reshelfFunc} displayAll={false} />);
             }
             return null;
@@ -109,35 +96,29 @@ class BooksApp extends React.Component {
 
     this.state = {library: []};
 
+    //  this method is required by other components on the main page
     this.reshelf = this.moveBook.bind(this);
 
-    //  make a static method bound to this class instance so we can update
-    //  the BooksApp library from the search page and have an added book
-    //  show up immediately when we return from the search page;
-    //  this may not be kosher, but it appears to work
-    this.constructor.reload = this.reloadLib.bind(this);
-    //  make bookIsOnShelf() available as a static method that is bound
-    //  to this class instance
-    this.constructor.bookIsOnShelf = this.bookIsOnShelf.bind(this);
+    //  these methods are required on the search page
+    this.reloadFunc = this.reloadLib.bind(this);
+    this.bookToShelfFunc = this.bookIsOnShelf.bind(this);
   }
 
   componentDidMount() {
-    console.log("BooksApp mounted!");
     this.reloadLib();
   }
 
-  //  load the library again from the server
+  //  load the library again from the server and force a new render if something has changed
   reloadLib() {
     BooksAPI.getAll().then((res)=>{this.setState({library: res});}).catch(e=>console.log(e));
   }
 
   //  given a book ID, returns a shelf name, if the book exists in our library;
-  //  if not, this returns 'none'
+  //  if not, this returns 'none'; called from search page
   bookIsOnShelf(bookID) {
     let tempBook = this.state.library.filter(item=>item.id === bookID);
 
     if (tempBook && tempBook.length) {
-      console.log(tempBook[0]);
       return (tempBook[0].shelf);
     }
     return 'none';
@@ -156,7 +137,7 @@ class BooksApp extends React.Component {
     return (
       <div className="app">
         <Route exact path='/' render={()=>(<Bookcase shelves={shelvesGlobal} library={this.state.library} reshelfFunc={this.reshelf} />)} />
-        <Route path='/search' render={()=>(<Bookfinder />)} />
+        <Route path='/search' render={()=>(<Bookfinder bookToShelfFunc={this.bookToShelfFunc} reloadFunc={this.reloadFunc} />)} />
       </div>
     );
   }
