@@ -16,7 +16,7 @@ To install the application:
 * Books can be moved between shelves using the drop-down menu accessed by clicking on the circular green arrow icon at the bottom right of a book's cover.
 * New books can be added by accessing the search page.  Click on the green + icon at the bottom right of the screen.
 * On the search page, enter a term in the text box to retrieve a list of books.
-* Books can be assigned to shelves in the same manner as on the main page.
+* From the search page, books can be assigned to shelves in the same manner as on the main page.
 * Click the back arrow to the right of the text box to return to the main page.
 
 ## Source
